@@ -86,7 +86,7 @@ fetchall() {
     execute svnfetch "http://svn.apache.org/repos/asf/qpid/trunk/qpid/java/management/common/src/main/" "qpid"
     execute svnfetch "http://svn.apache.org/repos/asf/harmony/enhanced/java/trunk/classlib/modules/auth/src/main/java/common/" "harmony" 
     execute svnfetch "https://svn.code.sf.net/p/dnsjava/code/trunk" "dnsjava"
-    execute gitfetch "git://kenai.com/jbosh~origin" "master" "jbosh"
+    $BUILD_BOSH && execute gitfetch "git://kenai.com/jbosh~origin" "master" "jbosh"
     # jldap doesn't compile with the latest version (missing deps?), therefore it's a fixed version for now
     #  execute gitfetch "git://git.openldap.org/openldap-jldap.git" "master" "novell-openldap-jldap"
     wait
@@ -160,14 +160,16 @@ createbuildsrc() {
   mkdir -p build/src/trunk
 
   execute copyfolder "src/smack/source/" "build/src/trunk" "."
+  execute copyfolder "src/smack/experimental/source/" "build/src/trunk" "."
   execute copyfolder "src/qpid/java" "build/src/trunk" "org/apache/qpid/management/common/sasl"
   execute copyfolder "src/novell-openldap-jldap" "build/src/trunk" "."
   execute copyfolder "src/dnsjava"  "build/src/trunk" "org"
   execute copyfolder "src/harmony" "build/src/trunk" "."
-  execute copyfolder "src/jbosh/src/main/java" "build/src/trunk" "."
-  if $BUILD_JINGLE ; then
-    execute copyfolder "src/smack/jingle/extension/source/" "build/src/trunk" "."
+  if $BUILD_BOSH; then
+      execute copyfolder "src/jbosh/src/main/java" "build/src/trunk" "."
+      cp -r src/smack-bosh .
   fi
+  $BUILD_JINGLE && execute copyfolder "src/smack/jingle/extension/source/" "build/src/trunk" "."
   wait
   # custom overwrites some files from smack, so this has to be done as last
   copyfolder "src/custom" "build/src/trunk" "."
@@ -176,6 +178,7 @@ createbuildsrc() {
 patchsrc() {
     echo "## Step 25: patch build/src"
     cd ${ASMACK_BASE}/build/src/trunk/
+    # patch src path in directly in asmack root
     for PATCH in `(cd "../../../${1}" ; find -maxdepth 1 -type f)|sort` ; do
 	echo $PATCH
 	if [[ $PATCH == *.sh ]]; then
@@ -272,6 +275,7 @@ buildcustom() {
       patchsrc "jingle"
       JINGLE_ARGS="-Djingle=lib/jstun.jar"
     fi
+    $BUILD_BOSH && patchsrc "bosh"
     patchsrc "${dir}"
     local custom
     custom=$(echo ${dir} | sed 's:patch/:-:')
@@ -281,7 +285,7 @@ buildcustom() {
 }
 
 parseopts() {
-    while getopts a:b:r:t:cdhjpux OPTION "$@"; do
+    while getopts a:b:r:t:cdhjopux OPTION "$@"; do
 	case $OPTION in
 	    a)
 		BUILD_ANDROID_VERSIONS="${OPTARG}"
@@ -305,6 +309,9 @@ parseopts() {
 	    c)
 		BUILD_CUSTOM=true
 		;;
+	    o)
+		BUILD_BOSH=true
+		;;
 	    p)
 		PARALLEL_BUILD=true
 		;;
@@ -318,6 +325,7 @@ parseopts() {
 		echo "$0 -d -c -u -j -r <repo> -b <branch>"
 		echo "-d: Enable debug"
 		echo "-j: Build jingle code"
+		echo "-b: Build BOSH code"
 		echo "-c: Apply custom patchs from patch directory"
 		echo "-u: DON'T update remote third party resources"
 		echo "-r <repo>: Git repository (can be local or remote) for underlying smack repository"
@@ -325,7 +333,7 @@ parseopts() {
 		echo "-p use parallel build where possible"
 		echo "-t <version>: Create a new version tag. You should build aSmack before calling this"
 		echo "-x: Publish the release"
-		echo "-a <SDK Version(s)>: Build only for the given Android SDK versions"
+		echo "-a <SDK Version(s)>: Build only for the given Android SDK versions. Minimum is 8"
 		exit
 		;;
 	esac
@@ -465,6 +473,7 @@ setdefaults() {
     UPDATE_REMOTE=true
     BUILD_CUSTOM=false
     BUILD_JINGLE=false
+    BUILD_BOSH=false
     JINGLE_ARGS=""
     PARALLEL_BUILD=false
     VERSION_TAG=""
