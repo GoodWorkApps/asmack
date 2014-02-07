@@ -256,13 +256,7 @@ buildandroid() {
     else
 	asmack_suffix="${1}"
     fi
-    if ! echo -e ${sdks} \
-	| xargs -I{} -n 1 $XARGS_ARGS ant \
-		-Dandroid.version={} \
-		-Djar.suffix="${asmack_suffix}" \
-		compile-android ; then
-	exit 1
-    fi
+    ant -Dandroid.version=8 -Djar.suffix="${asmack_suffix}" compile-android
 }
 
 buildcustom() {
