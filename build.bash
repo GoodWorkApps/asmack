@@ -177,7 +177,7 @@ createbuildsrc() {
 patchsrc() {
     echo "## Step 25: patch build/src"
     cd ${ASMACK_BASE}/build/src/trunk/
-    for PATCH in `(cd "../../../${1}" ; find -maxdepth 1 -type f)|sort` ; do
+    for PATCH in `(cd "../../../${1}" ; gfind-maxdepth 1 -type f)|sort` ; do
 	echo $PATCH
 	if [[ $PATCH == *.sh ]]; then
 	    "../../../${1}/$PATCH" || exit 1
@@ -267,7 +267,7 @@ buildandroid() {
 
 buildcustom() {
     echo `ZALOOPA`
-  for dir in `find patch -maxdepth 1 -mindepth 1 -type d`; do
+  for dir in `gfindpatch -maxdepth 1 -mindepth 1 -type d`; do
     buildsrc
     patchsrc "patch"
     if $BUILD_JINGLE ; then
@@ -276,7 +276,7 @@ buildcustom() {
     fi
     patchsrc "${dir}"
     local custom
-    custom=$(echo ${dir} | sed -e "s@patch/@-@")
+    custom=$(echo ${dir} | gsed-e "s@patch/@-@")
     ant -Djar.suffix="${custom}" $JINGLE_ARGS
     buildandroid "${custom}"
   done
@@ -350,12 +350,12 @@ prepareRelease() {
     cp ${ASMACK_BASE}/CHANGELOG ${RELEASE_DIR}
 
     if [ -n $GPG_KEY ] ; then
-	find $RELEASE_DIR -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
+	gfind$RELEASE_DIR -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
 	    | xargs -n 1 -0 $XARGS_ARGS gpg --local-user $GPG_KEY --detach-sign
     fi
 
     cd $RELEASE_DIR
-    find . -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
+    gfind. -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
 	| xargs -I{} -n 1 -0 $XARGS_ARGS sh -c 'md5sum {} > {}.md5'
     cd -
 
@@ -422,7 +422,7 @@ initialize() {
     if [ ! -d src/ ]; then
 	mkdir src
     fi
-    find build \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -0 rm -f
+    gfindbuild \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -0 rm -f
     rm -rf src/custom
 }
 
@@ -577,7 +577,7 @@ fi
 
 if cmdExists advzip ; then
   echo "advzip found, compressing files"
-  find build \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -n 1 -0 $XARGS_ARGS advzip -z4
+  gfindbuild \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -n 1 -0 $XARGS_ARGS advzip -z4
 else
   echo "Could not find the advzip command."
   echo "advzip will further reduce the size of the generated jar and zip files,"
