@@ -69,7 +69,7 @@ fetchall() {
 	rm -rf ${SRC_DIR}/smack
 	mkdir ${SRC_DIR}/smack
 	cd $SMACK_REPO
-	git archive $SMACK_BRANCH | tar -x -C ${SRC_DIR}/smack
+	git archive $SMACK_BRANCH | gtar -x -C ${SRC_DIR}/smack
 	if [ $? -ne 0 ]; then
 	    exit
 	fi
@@ -145,10 +145,10 @@ copyfolder() {
 #  cd ${ASMACK_BASE}
 #  (
 #    cd "${1}"
-#    tar -cSsp --exclude-vcs "${3}"
+#    gtar -cSsp --exclude-vcs "${3}"
 #  ) | (
 #    cd "${2}"
-#    tar -xSsp
+#    gtar -xSsp
 #  )
 cp -r ${ASMACK_BASE}/${1}/${3} ${ASMACK_BASE}/${2}/
   wait
@@ -544,7 +544,7 @@ checkPrerequisites() {
 	exit 1
     fi
 
-    if ! tar --version |grep GNU &> /dev/null ; then
+    if ! gtar --version |grep GNU &> /dev/null ; then
 	echo "aSmack's build.bash needs GNU tar"
 	exit 1
     fi
