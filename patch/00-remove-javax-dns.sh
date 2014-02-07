@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 rm org/jivesoftware/smack/util/dns/JavaxResolver.java

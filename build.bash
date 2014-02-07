@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 svnfetch() {
     REV="${3:-HEAD}"
@@ -142,14 +142,15 @@ EOF
 }
 
 copyfolder() {
-  cd ${ASMACK_BASE}
-  (
-    cd "${1}"
-    tar -cSsp --exclude-vcs "${3}"
-  ) | (
-    cd "${2}"
-    tar -xSsp
-  )
+#  cd ${ASMACK_BASE}
+#  (
+#    cd "${1}"
+#    tar -cSsp --exclude-vcs "${3}"
+#  ) | (
+#    cd "${2}"
+#    tar -xSsp
+#  )
+cp -r ${ASMACK_BASE}/${1}/${3} ${ASMACK_BASE}/${2}/
   wait
 }
 
@@ -265,6 +266,7 @@ buildandroid() {
 }
 
 buildcustom() {
+    echo `ZALOOPA`
   for dir in `find patch -maxdepth 1 -mindepth 1 -type d`; do
     buildsrc
     patchsrc "patch"
@@ -274,7 +276,7 @@ buildcustom() {
     fi
     patchsrc "${dir}"
     local custom
-    custom=$(echo ${dir} | sed 's:patch/:-:')
+    custom=$(echo ${dir} | sed -e "s@patch/@-@")
     ant -Djar.suffix="${custom}" $JINGLE_ARGS
     buildandroid "${custom}"
   done
@@ -360,10 +362,10 @@ prepareRelease() {
     local release_readme
     release_readme=${RELEASE_DIR}/README
 
-    sed \
-	-e "s/\$VERSION_TAG/${VERSION_TAG}/" \
-	-e "s/\$BUILD_DATE/${BUILD_DATE}/" \
-	README.asmack > $release_readme
+    #sed \
+	#-e "s/\$VERSION_TAG/${VERSION_TAG}/" \
+	#-e "s/\$BUILD_DATE/${BUILD_DATE}/" \
+	#README.asmack > $release_readme
 
     # Pretty print the component versions at the end of README
     # Note that there is an exclamation mark at the beginning of the

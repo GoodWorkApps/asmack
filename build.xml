@@ -3,7 +3,10 @@
 <property name="jar.suffix" value="" />
 <property name="jingle" value="" />
 <property file="local.properties" />
+<!--
 <property name="android.version" value="" />
+-->
+
 
 <!-- if sdk-location was not set from one of the property file, then
      get it from the ANDROID_HOME env var.
