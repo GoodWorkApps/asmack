@@ -267,7 +267,7 @@ buildandroid() {
 
 buildcustom() {
     echo `ZALOOPA`
-  for dir in `gfindpatch -maxdepth 1 -mindepth 1 -type d`; do
+  for dir in `gfind patch -maxdepth 1 -mindepth 1 -type d`; do
     buildsrc
     patchsrc "patch"
     if $BUILD_JINGLE ; then
@@ -350,12 +350,12 @@ prepareRelease() {
     cp ${ASMACK_BASE}/CHANGELOG ${RELEASE_DIR}
 
     if [ -n $GPG_KEY ] ; then
-	gfind$RELEASE_DIR -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
+	gfind $RELEASE_DIR -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
 	    | xargs -n 1 -0 $XARGS_ARGS gpg --local-user $GPG_KEY --detach-sign
     fi
 
     cd $RELEASE_DIR
-    gfind. -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
+    gfind . -maxdepth 1 -and \( -name '*.jar' -or -name '*.zip' \) -print0 \
 	| xargs -I{} -n 1 -0 $XARGS_ARGS sh -c 'md5sum {} > {}.md5'
     cd -
 
@@ -422,7 +422,7 @@ initialize() {
     if [ ! -d src/ ]; then
 	mkdir src
     fi
-    gfindbuild \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -0 rm -f
+    gfind build \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -0 rm -f
     rm -rf src/custom
 }
 
@@ -577,7 +577,7 @@ fi
 
 if cmdExists advzip ; then
   echo "advzip found, compressing files"
-  gfindbuild \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -n 1 -0 $XARGS_ARGS advzip -z4
+  gfind build \( -name '*.jar' -or -name '*.zip' \) -print0 | xargs -n 1 -0 $XARGS_ARGS advzip -z4
 else
   echo "Could not find the advzip command."
   echo "advzip will further reduce the size of the generated jar and zip files,"
