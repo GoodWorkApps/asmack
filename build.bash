@@ -256,7 +256,7 @@ buildandroid() {
     else
 	asmack_suffix="${1}"
     fi
-    ant -Dandroid.version=8 -Djar.suffix="${asmack_suffix}" compile-android
+    ant -Dandroid.version="android-8" -Djar.suffix="${asmack_suffix}" compile-android
 }
 
 buildcustom() {
