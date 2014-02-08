@@ -18,15 +18,10 @@ svnfetch() {
 gitfetch() {
     echo "Fetching ${2} branch/commit from ${1} to ${3} via git"
     cd $SRC_DIR
-    if ! [ -f "${3}/.git/config" ]; then
+    rm -rf {3}
 	git clone "${1}" "${3}"
 	cd "${3}"
 	git checkout "${2}"
-    else
-	cd "${3}"
-	git fetch
-	git checkout "${2}"
-    fi
 
     if [ $? -ne 0 ]; then
 	exit
